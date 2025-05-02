@@ -1,24 +1,34 @@
 import { useState } from "react";
 import { auth } from "../firebase.config";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  AuthErrorCodes,
+  type AuthError,
+} from "firebase/auth";
 import Button from "react-bootstrap/Button";
-import { Navigate, redirect, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e: any) => {
     e.preventDefault();
-    setError(null);
+    setError("");
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // Rediriger l'utilisateur ou effectuer une autre action après la connexion
       navigate("/test");
     } catch (err: any) {
-      setError(err.message);
+      const error = err as AuthError;
+
+      if (error.code === AuthErrorCodes.INVALID_LOGIN_CREDENTIALS) {
+        setError("Identifiants invalides.");
+        // TODO: Gérer d'autres cas d'erreur liés à la connexion.
+      } else {
+        setError("Une erreur est survenue.");
+      }
     }
 
     // Réinitialiser les champs de saisie
