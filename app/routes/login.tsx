@@ -9,6 +9,8 @@ import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router";
 import Form from "react-bootstrap/Form";
 import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -39,34 +41,38 @@ export default function Login() {
 
   return (
     <Container className="vh-100 d-flex justify-content-center align-items-center">
-      <Form className="d-flex flex-column w-25" onSubmit={handleLogin}>
-        <h2 className="mb-3">Connexion</h2>
-        {error && <div className="alert alert-danger">{error}</div>}
+      <Row className="w-100 justify-content-center">
+        <Col md={4}>
+          <Form className="d-flex flex-column w-100" onSubmit={handleLogin}>
+            <h2 className="mb-3">Connexion</h2>
+            {error && <div className="alert alert-danger">{error}</div>}
 
-        <Form.Group className="mb-3" controlId="email">
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            type="email"
-            placeholder="admin@gmail.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </Form.Group>
+            <Form.Group className="mb-3" controlId="email">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="admin@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Form.Group>
 
-        <Form.Group className="mb-3" controlId="password">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </Form.Group>
+            <Form.Group className="mb-3" controlId="password">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Form.Group>
 
-        <Button type="submit" variant="primary">
-          Se connecter
-        </Button>
-      </Form>
+            <Button type="submit" variant="primary">
+              Se connecter
+            </Button>
+          </Form>
+        </Col>
+      </Row>
     </Container>
   );
 }
