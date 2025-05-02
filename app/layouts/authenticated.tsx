@@ -1,7 +1,7 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase.config";
 import { useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, Outlet } from "react-router";
 
 export default function Authenticated() {
   const navigate = useNavigate();
@@ -21,5 +21,5 @@ export default function Authenticated() {
     return unsubscribe;
   }, []);
 
-  return <div>Only for authenticated people</div>;
+  return <Outlet />;
 }
