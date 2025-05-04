@@ -5,13 +5,20 @@ import {
   AuthErrorCodes,
   type AuthError,
 } from "firebase/auth";
+import { redirect, useNavigate } from "react-router";
+import { isAuthenticated } from "~/utilities/auth";
 import Button from "react-bootstrap/Button";
-import { useNavigate } from "react-router";
 import Form from "react-bootstrap/Form";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Alert from "react-bootstrap/Alert";
+
+export const clientLoader = async () => {
+  if (await isAuthenticated()) {
+    return redirect("/");
+  }
+};
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -25,7 +32,7 @@ export default function Login() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/test");
+      navigate("/");
     } catch (err: any) {
       const error = err as AuthError;
 
@@ -34,9 +41,8 @@ export default function Login() {
         // TODO: Gérer d'autres cas d'erreur liés à la connexion.
       } else {
         setError("Une erreur est survenue.");
+        setPassword("");
       }
-
-      setPassword("");
     }
   };
 

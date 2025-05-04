@@ -1,26 +1,13 @@
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase.config";
-import { useEffect } from "react";
-import { useNavigate, Outlet } from "react-router";
+import { Outlet } from "react-router";
+import { redirect } from "react-router";
+import { isAuthenticated } from "~/utilities/auth";
+
+export const clientLoader = async () => {
+  if (!(await isAuthenticated())) {
+    return redirect("/login");
+  }
+};
 
 export default function Authenticated() {
-  const navigate = useNavigate();
-  console.log(auth.currentUser);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/auth.user
-        const uid = user.uid;
-        console.log("User ID: ", uid);
-      } else {
-        navigate("/login");
-      }
-    });
-
-    return unsubscribe;
-  }, []);
-
   return <Outlet />;
 }
