@@ -5,6 +5,7 @@ import { useNavigate, Outlet } from "react-router";
 
 export default function Authenticated() {
   const navigate = useNavigate();
+  console.log(auth.currentUser);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
