@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Outlet } from "react-router";
 import { useNavigate } from "react-router";
 import { redirect } from "react-router";
+import { AppNavbar } from "~/components/app-navbar";
 import { AuthProvider } from "~/contexts/auth";
 import { auth } from "~/firebase.config";
 import { isAuthenticated } from "~/utilities/auth";
@@ -27,6 +28,7 @@ export default function Authenticated() {
   return (
     <AuthProvider>
       <Outlet />
+      <AppNavbar />
     </AuthProvider>
   );
 }

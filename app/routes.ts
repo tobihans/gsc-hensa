@@ -8,7 +8,9 @@ import {
 export default [
   route("login", "routes/login.tsx"),
   layout("layouts/authenticated.tsx", [
-    index("routes/home.tsx"),
-    route("test", "routes/test.tsx"),
+    layout("layouts/app.tsx", [
+      index("routes/home.tsx"),
+      route("test", "routes/test.tsx"),
+    ]),
   ]),
 ] satisfies RouteConfig;
