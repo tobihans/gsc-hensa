@@ -3,9 +3,24 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import Offcanvas from "react-bootstrap/Offcanvas";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useAuth } from "~/contexts/auth";
+import { signOut } from "firebase/auth";
+import { auth } from "~/firebase.config";
 
 export function AppNavbar() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      navigate("/login");
+    } catch (error) {
+      // TODO: Handle logout errors
+    }
+  };
+
   return (
     <>
       <Navbar expand="sm" className="bg-body-tertiary mb-3">
@@ -33,17 +48,15 @@ export function AppNavbar() {
                   Clients
                 </Link>
                 <NavDropdown
-                  title="Dropdown"
+                  title={user?.displayName ?? user?.email ?? "Lambda"}
                   id="offcanvasNavbarDropdown"
                   className="ms-auto"
                 >
-                  <NavDropdown.Item href="#action3">Action</NavDropdown.Item>
-                  <NavDropdown.Item href="#action4">
-                    Another action
-                  </NavDropdown.Item>
-                  <NavDropdown.Divider />
-                  <NavDropdown.Item href="#action5">
-                    Something else here
+                  <NavDropdown.Item
+                    className="text-danger"
+                    onClick={() => logout()}
+                  >
+                    Logout
                   </NavDropdown.Item>
                 </NavDropdown>
               </Nav>
