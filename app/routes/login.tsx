@@ -31,6 +31,8 @@ export default function Login() {
     setError("");
 
     try {
+      // NOTE: This is an example of how to set how long you want the user to stay connected.
+      // await setPersistence(auth, inMemoryPersistence);
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/");
     } catch (err: any) {
