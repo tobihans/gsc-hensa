@@ -1,0 +1,131 @@
+Realtime Database et Cloud Firestore sont deux bases de données NoSQL proposées par Firebase, chacune ayant ses propres caractéristiques et cas d'utilisation.
+
+1.  Modèle de données : 
+   -  Realtime Database :  Utilise un modèle de données JSON et stocke les données sous forme d'un grand arbre JSON. 
+                           C'est une base de données simple et facile à utiliser pour des structures de données moins complexes.
+   -  Cloud Firestore :  Utilise un modèle de données basé sur des collections et des documents, similaire à une base de données de documents. 
+                           Cela permet une organisation plus structurée et hiérarchique des données.
+
+2.  Évolutivité : 
+   -  Realtime Database :  Bien qu'elle soit évolutive, elle peut rencontrer des limitations en termes de performances avec des ensembles de données très volumineux ou des structures de données complexes.
+   -  Cloud Firestore :  Conçue pour une meilleure évolutivité, elle gère plus efficacement les grandes quantités de données et les requêtes complexes.
+
+3.  Filtrage de données : 
+   -  Realtime Database :  Les requêtes sont plus limitées. Vous pouvez effectuer des requêtes simples, mais les requêtes complexes peuvent être difficiles à mettre en œuvre.
+   -  Cloud Firestore :  Offre des capacités de requête plus avancées, y compris des requêtes composites et des index, ce qui permet une plus grande flexibilité dans l'interrogation des données.
+
+4.  Synchronisation en temps réel : 
+   -  Realtime Database :  Synchronise les données en temps réel avec tous les clients connectés, ce qui est idéal pour les applications nécessitant des mises à jour instantanées.
+   -  Cloud Firestore :  Offre également la synchronisation en temps réel, mais avec une meilleure gestion des conflits et des mises à jour hors ligne.
+
+5.  Prix : 
+   -  Realtime Database :  Le modèle de tarification est basé sur le stockage et la bande passante utilisés.
+   -  Cloud Firestore :  Le modèle de tarification est basé sur les opérations (lectures, écritures, suppressions) ainsi que sur le stockage et la bande passante.
+
+6.  Intégration hors ligne : 
+   -  Realtime Database :  Prend en charge la persistance des données hors ligne, mais avec des limitations.
+   -  Cloud Firestore :  Offre une meilleure intégration hors ligne avec des fonctionnalités avancées pour gérer les données hors ligne et les synchroniser une fois la connexion rétablie.
+
+
+
+### Schéma de données pour un client
+
+1.  ID Client  (Identifiant unique)
+   - Type : Chaîne de caractères ou nombre
+   - Description : Un identifiant unique pour chaque client.
+
+2.  Nom 
+   - Type : Chaîne de caractères
+   - Description : Le nom complet du client.
+
+3.  Adresse e-mail 
+   - Type : Chaîne de caractères
+   - Description : L'adresse e-mail du client.
+
+4.  Numéro de téléphone 
+   - Type : Chaîne de caractères
+   - Description : Le numéro de téléphone du client.
+
+5.  Adresse postale 
+   - Type : Objet
+   - Description : L'adresse postale du client.
+     - Rue : Chaîne de caractères
+     - Ville : Chaîne de caractères
+     - Code postal : Chaîne de caractères
+     - Pays : Chaîne de caractères
+
+6.  Date de création 
+   - Type : Date
+   - Description : La date à laquelle le client a été ajouté à la base de données.
+
+7.  Statut du client 
+   - Type : Chaîne de caractères
+   - Description : Le statut du client (par exemple, actif, inactif, suspendu).
+
+### Exemple en JSON
+
+Voici comment ce schéma pourrait être représenté en JSON :
+
+```json
+{
+  "id_client": "12345",
+  "nom": "Jean Dupont",
+  "email": "jean.dupont@example.com",
+  "telephone": "+1234567890",
+  "adresse": {
+    "rue": "123 Rue de la Paix",
+    "ville": "Paris",
+    "code_postal": "75000",
+    "pays": "France"
+  },
+  "date_creation": "2023-10-01",
+  "statut": "actif"
+}
+```
+
+### Exemple en Firestore
+
+-  Collection :  `clients`
+  -  Document :  `12345`
+    - `nom`: "Jean Dupont"
+    - `email`: "jean.dupont@example.com"
+    - `telephone`: "+1234567890"
+    - `adresse`:
+      - `rue`: "123 Rue de la Paix"
+      - `ville`: "Paris"
+      - `code_postal`: "75000"
+      - `pays`: "France"
+    - `date_creation`: "2023-10-01"
+    - `statut`: "actif"
+
+
+
+
+
+Voici quelques raccourcis importants dans Visual Studio Code (VSCode) :
+
+1.  Supprimer une ligne entière  :
+   -  Windows/Linux  : `Ctrl + Shift + K`
+   -  Mac  : `Cmd + Shift + K`
+
+2.  Revenir sur l'espace des fichiers de votre projet (Explorer)  :
+   -  Windows/Linux  : `Ctrl + Shift + E`
+   -  Mac  : `Cmd + Shift + E`
+
+D'autres raccourcis utiles incluent :
+
+-  Ouvrir la palette de commandes  :
+  - `Ctrl + Shift + P` (Windows/Linux)
+  - `Cmd + Shift + P` (Mac)
+
+-  Rechercher dans les fichiers  :
+  - `Ctrl + Shift + F` (Windows/Linux)
+  - `Cmd + Shift + F` (Mac)
+
+-  Commenter/Décommenter une ligne  :
+  - `Ctrl + /` (Windows/Linux)
+  - `Cmd + /` (Mac)
+
+-  Ouvrir le terminal intégré  :
+  - `Ctrl + \`` (Windows/Linux)
+  - `Cmd + \`` (Mac)

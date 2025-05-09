@@ -21,6 +21,16 @@ export function AppNavbar() {
     }
   };
 
+  /* const logout = async () => {
+    try {
+      await signOut(auth);
+      navigate("/login");
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion :", error);
+      alert("Une erreur est survenue lors de la déconnexion. Veuillez réessayer.");
+    }
+  }; */
+
   return (
     <>
       <Navbar expand="sm" className="bg-body-tertiary mb-3">
