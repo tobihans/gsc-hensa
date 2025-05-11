@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { auth } from "../firebase.config";
 import {
-  signInWithEmailAndPassword,
-  AuthErrorCodes,
   type AuthError,
+  AuthErrorCodes,
+  signInWithEmailAndPassword,
 } from "firebase/auth";
+import { useState } from "react";
+import Alert from "react-bootstrap/Alert";
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
+import Form from "react-bootstrap/Form";
+import Row from "react-bootstrap/Row";
 import { redirect, useNavigate } from "react-router";
 import { isAuthenticated } from "~/utilities/auth";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import Alert from "react-bootstrap/Alert";
+import { auth } from "../firebase.config";
 
 export const clientLoader = async () => {
   if (await isAuthenticated()) {
@@ -26,7 +26,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e: any) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
@@ -35,6 +35,7 @@ export default function Login() {
       // await setPersistence(auth, inMemoryPersistence);
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/");
+      // biome-ignore lint/suspicious/noExplicitAny: only any/unknown allowed
     } catch (err: any) {
       const error = err as AuthError;
 

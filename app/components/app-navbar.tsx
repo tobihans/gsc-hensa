@@ -1,11 +1,11 @@
+import { signOut } from "firebase/auth";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
+import Navbar from "react-bootstrap/Navbar";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "~/contexts/auth";
-import { signOut } from "firebase/auth";
 import { auth } from "~/firebase.config";
 
 export function AppNavbar() {

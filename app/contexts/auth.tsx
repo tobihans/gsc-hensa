@@ -1,10 +1,10 @@
-import { onAuthStateChanged, type User } from "firebase/auth";
+import { type User, onAuthStateChanged } from "firebase/auth";
 import {
+  type ReactNode,
   createContext,
   useContext,
   useEffect,
   useState,
-  type ReactNode,
 } from "react";
 import { auth } from "~/firebase.config";
 
@@ -35,16 +35,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(
         user
           ? {
-            uid: user.uid,
-            email: user.email,
-            emailVerified: user.emailVerified,
-            isAnonymous: user.isAnonymous,
-            displayName: user.displayName,
-            metadata: user.metadata,
-            phoneNumber: user.phoneNumber,
-            photoURL: user.photoURL,
-          }
-          : null
+              uid: user.uid,
+              email: user.email,
+              emailVerified: user.emailVerified,
+              isAnonymous: user.isAnonymous,
+              displayName: user.displayName,
+              metadata: user.metadata,
+              phoneNumber: user.phoneNumber,
+              photoURL: user.photoURL,
+            }
+          : null,
       );
     });
 

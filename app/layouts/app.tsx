@@ -1,12 +1,12 @@
 import { useEffect } from "react";
+import Container from "react-bootstrap/Container";
 import { useNavigate } from "react-router";
 import { redirect } from "react-router";
+import { Outlet } from "react-router";
+import { AppNavbar } from "~/components/app-navbar";
 import { AuthProvider } from "~/contexts/auth";
 import { auth } from "~/firebase.config";
 import { isAuthenticated } from "~/utilities/auth";
-import { Outlet } from "react-router";
-import { AppNavbar } from "~/components/app-navbar";
-import Container from "react-bootstrap/Container";
 
 export const clientLoader = async () => {
   if (!(await isAuthenticated())) {

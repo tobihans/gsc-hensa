@@ -1,14 +1,14 @@
 import {
-  isRouteErrorResponse,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
 } from "react-router";
 
-import type { Route } from "./+types/root";
 import { Spinner } from "react-bootstrap";
+import type { Route } from "./+types/root";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export const links: Route.LinksFunction = () => [
@@ -49,6 +49,7 @@ export default function App() {
 export function HydrateFallback() {
   return (
     <div className="vh-100 vw-100 d-flex justify-content-center align-items-center">
+      {/* biome-ignore lint/a11y/useSemanticElements: status should be valid */}
       <Spinner animation="border" role="status">
         <span className="visually-hidden">Loading...</span>
       </Spinner>
