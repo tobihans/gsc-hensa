@@ -6,6 +6,7 @@ import { auth } from "~/firebase.config";
 import { isAuthenticated } from "~/utilities/auth";
 import { Outlet } from "react-router";
 import { AppNavbar } from "~/components/app-navbar";
+import { AppFooter } from "~/components/app-footer";
 import Container from "react-bootstrap/Container";
 
 export const clientLoader = async () => {
@@ -32,6 +33,7 @@ export default function App() {
       <Container fluid="xl">
         <Outlet />
       </Container>
+      <AppFooter />
     </AuthProvider>
   );
 }
