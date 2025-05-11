@@ -44,7 +44,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
             </thead>
             <tbody>
               {clients.map((client) => (
-                <tr key={client.uid}>
+                <tr key={client.uid} style={{ cursor: "pointer" }}>
                   <td>{client.fullname}</td>
                   <td>{client.email}</td>
                   <td>{client.phone}</td>
