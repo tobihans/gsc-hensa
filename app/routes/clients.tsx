@@ -1,11 +1,14 @@
 import { collection, getDocs } from "firebase/firestore";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
+import Offcanvas from "react-bootstrap/Offcanvas";
 import Row from "react-bootstrap/Row";
 import Table from "react-bootstrap/Table";
 import { clientConverter } from "~/data/models/client";
 import { db } from "~/firebase.config";
 import type { Route } from "./+types/clients";
+import { useState } from "react";
 
 export const clientLoader = async () => {
   const clientsRef = collection(db, "clients").withConverter(clientConverter);
@@ -17,6 +20,12 @@ export const clientLoader = async () => {
 
 export default function Clients({ loaderData }: Route.ComponentProps) {
   const clients = loaderData.clients;
+  const [showOffCanvas, setShowOffCanvas] = useState(false);
+
+  const onAdd = () => {
+    // TODO: Reset form state before.
+    setShowOffCanvas(true);
+  };
 
   return (
     <>
@@ -25,7 +34,12 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
           <h2>Liste des clients</h2>
         </Col>
         <Col xs={6} md={1}>
-          <Button variant="primary" className="w-auto">
+          <Button
+            type="button"
+            variant="primary"
+            className="w-auto"
+            onClick={onAdd}
+          >
             Ajouter
           </Button>
         </Col>
@@ -35,7 +49,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
           <Table>
             <thead>
               <tr>
-                <th>Nom</th>
+                <th>Nom complet</th>
                 <th>Email</th>
                 <th>Téléphone</th>
                 <th>Adresse</th>
@@ -56,6 +70,89 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
           </Table>
         </Col>
       </Row>
+      {/* Form */}
+      <Offcanvas
+        show={showOffCanvas}
+        onHide={() => {
+          setShowOffCanvas(false);
+        }}
+        placement="end"
+      >
+        <Offcanvas.Header closeButton>
+          {/* TODO: Handle case where record is updated or can be deleted. */}
+          <Offcanvas.Title>Ajouter un client</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <Form>
+            <Form.Group className="mb-3" controlId="fullname">
+              <Form.Label>Nom complet</Form.Label>
+              <Form.Control type="text" placeholder="Jeanne D'Arc" required />
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="email">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="jeannedarc@gmail.com"
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="phone">
+              <Form.Label>Téléphone</Form.Label>
+              <Form.Control
+                type="phone"
+                placeholder="+2290190909090"
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="postalCode">
+              <Form.Label>Boîte postale</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="BP01234"
+                defaultValue="BP0000"
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="street">
+              <Form.Label>Rue</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Marché GDM"
+                defaultValue="Rue"
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="city">
+              <Form.Label>Ville</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Calavi"
+                defaultValue="Calavi"
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="country">
+              <Form.Label>Pays</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="BJ"
+                defaultValue="BJ"
+                required
+              />
+            </Form.Group>
+
+            <Button variant="primary" type="submit">
+              Enregistrer
+            </Button>
+          </Form>
+        </Offcanvas.Body>
+      </Offcanvas>
     </>
   );
 }
