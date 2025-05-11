@@ -44,7 +44,7 @@ export function AppNavbar() {
                 <Link to="/" className="nav-link">
                   Accueil
                 </Link>
-                <Link to="/test" className="nav-link">
+                <Link to="/clients" className="nav-link">
                   Clients
                 </Link>
                 <NavDropdown
