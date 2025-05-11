@@ -1,4 +1,5 @@
 import { collection, getDocs } from "firebase/firestore";
+import { Form as RForm } from "react-router";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
@@ -16,6 +17,12 @@ export const clientLoader = async () => {
   const clients = querySnapshot.docs.map((doc) => doc.data());
 
   return { clients };
+};
+
+// TODO: Implement Create/Update/Delete with client action.
+export const clientAction = async ({ request }: Route.ClientActionArgs) => {
+  const formData = await request.formData();
+  console.log(formData.get("fullname"), formData.get("email"));
 };
 
 export default function Clients({ loaderData }: Route.ComponentProps) {
@@ -83,16 +90,22 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
           <Offcanvas.Title>Ajouter un client</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          <Form>
+          <Form as={RForm} method="post">
             <Form.Group className="mb-3" controlId="fullname">
               <Form.Label>Nom complet</Form.Label>
-              <Form.Control type="text" placeholder="Jeanne D'Arc" required />
+              <Form.Control
+                type="text"
+                name="fullname"
+                placeholder="Jeanne D'Arc"
+                required
+              />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="email">
               <Form.Label>Email</Form.Label>
               <Form.Control
                 type="email"
+                name="email"
                 placeholder="jeannedarc@gmail.com"
                 required
               />
@@ -101,6 +114,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
             <Form.Group className="mb-3" controlId="phone">
               <Form.Label>Téléphone</Form.Label>
               <Form.Control
+                name="phone"
                 type="phone"
                 placeholder="+2290190909090"
                 required
@@ -110,6 +124,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
             <Form.Group className="mb-3" controlId="postalCode">
               <Form.Label>Boîte postale</Form.Label>
               <Form.Control
+                name="postalCode"
                 type="text"
                 placeholder="BP01234"
                 defaultValue="BP0000"
@@ -120,6 +135,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
             <Form.Group className="mb-3" controlId="street">
               <Form.Label>Rue</Form.Label>
               <Form.Control
+                name="street"
                 type="text"
                 placeholder="Marché GDM"
                 defaultValue="Rue"
@@ -130,6 +146,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
             <Form.Group className="mb-3" controlId="city">
               <Form.Label>Ville</Form.Label>
               <Form.Control
+                name="city"
                 type="text"
                 placeholder="Calavi"
                 defaultValue="Calavi"
@@ -140,6 +157,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
             <Form.Group className="mb-3" controlId="country">
               <Form.Label>Pays</Form.Label>
               <Form.Control
+                name="country"
                 type="text"
                 placeholder="BJ"
                 defaultValue="BJ"
