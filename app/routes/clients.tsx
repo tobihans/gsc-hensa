@@ -17,7 +17,6 @@ export const clientLoader = async () => {
 
 export default function Clients({ loaderData }: Route.ComponentProps) {
   const clients = loaderData.clients;
-  console.log(loaderData.clients);
 
   return (
     <>
