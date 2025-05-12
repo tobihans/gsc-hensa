@@ -6,13 +6,13 @@ export interface Client {
   email: string;
   phone: string;
   address:
-  | {
-    country: string;
-    city: string;
-    street: string;
-    postalCode: string;
-  }
-  | string;
+    | {
+        country: string;
+        city: string;
+        street: string;
+        postalCode: string;
+      }
+    | string;
   createdAt: Date;
 }
 

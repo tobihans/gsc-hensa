@@ -1,15 +1,15 @@
 import { collection, getDocs } from "firebase/firestore";
-import { Form as RForm } from "react-router";
+import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import Row from "react-bootstrap/Row";
 import Table from "react-bootstrap/Table";
+import { Form as RForm } from "react-router";
 import { clientConverter } from "~/data/models/client";
 import { db } from "~/firebase.config";
 import type { Route } from "./+types/clients";
-import { useState } from "react";
 
 export const clientLoader = async () => {
   const clientsRef = collection(db, "clients").withConverter(clientConverter);
