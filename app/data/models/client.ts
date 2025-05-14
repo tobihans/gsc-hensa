@@ -1,4 +1,4 @@
-import type { FirestoreDataConverter } from "firebase/firestore";
+import { Timestamp, type FirestoreDataConverter } from "firebase/firestore";
 
 export interface Client {
   uid?: string;
@@ -13,13 +13,8 @@ export interface Client {
         postalCode: string;
       }
     | string;
-  createdAt: Date;
-}
-
-export namespace ClientRouter {
-  export interface LoaderData {
-    clients: Client[];
-  }
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export const clientConverter: FirestoreDataConverter<Client> = {
@@ -28,7 +23,12 @@ export const clientConverter: FirestoreDataConverter<Client> = {
     email: client.email,
     phone: client.phone,
     address: client.address,
-    createdAt: client.createdAt,
+    createdAt: client.createdAt
+      ? Timestamp.fromDate(client.createdAt as Date)
+      : Timestamp.now(),
+    updatedAt: client.updatedAt
+      ? Timestamp.fromDate(client.updatedAt as Date)
+      : Timestamp.now(),
   }),
   fromFirestore: (snapshot, options) => {
     const data = snapshot.data(options);
@@ -40,6 +40,7 @@ export const clientConverter: FirestoreDataConverter<Client> = {
       phone: data.phone,
       address: `${data.address.postalCode}, ${data.address.street}, ${data.address.city}, ${data.address.country}`,
       createdAt: data.createdAt.toDate(),
+      updatedAt: data.createdAt.toDate(),
     };
   },
 };

@@ -1,12 +1,13 @@
-import { collection, getDocs } from "firebase/firestore";
-import { useState } from "react";
+import { addDoc, collection, getDocs } from "firebase/firestore";
+import { useEffect, useMemo, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import Row from "react-bootstrap/Row";
+import Spinner from "react-bootstrap/Spinner";
 import Table from "react-bootstrap/Table";
-import { Form as RForm } from "react-router";
+import { data, useFetcher } from "react-router";
 import { clientConverter } from "~/data/models/client";
 import { db } from "~/firebase.config";
 import type { Route } from "./+types/clients";
@@ -21,18 +22,51 @@ export const clientLoader = async () => {
 
 // TODO: Implement Create/Update/Delete with client action.
 export const clientAction = async ({ request }: Route.ClientActionArgs) => {
+  await new Promise((resolve) => setTimeout(resolve, 10000));
+
   const formData = await request.formData();
-  console.log(formData.get("fullname"), formData.get("email"));
+  // console.log(formData.get("fullname"), formData.get("email"));
+  // TODO: Add data validation layer with a lib like Zod...
+  const fullname = formData.get("fullname") as string;
+  const email = formData.get("email") as string;
+  const phone = formData.get("phone") as string;
+  const postalCode = formData.get("postalCode") as string;
+  const street = formData.get("street") as string;
+  const city = formData.get("city") as string;
+  const country = formData.get("country") as string;
+
+  const clientsRef = collection(db, "clients").withConverter(clientConverter);
+  try {
+    const docRef = await addDoc(clientsRef, {
+      fullname,
+      email,
+      phone,
+      address: {
+        postalCode,
+        street,
+        city,
+        country,
+      },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    return data({ uid: docRef.id, error: null }, { status: 201 });
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    // TODO: Handle errors and provide approrpiate responses.
+    return data({ uid: null, error: String(e) }, { status: 400 });
+  }
 };
 
 export default function Clients({ loaderData }: Route.ComponentProps) {
   const clients = loaderData.clients;
+  const fetcher = useFetcher<Awaited<ReturnType<typeof clientAction>>>();
+  const isLoading = useMemo(() => fetcher.state !== "idle", [fetcher]);
   const [showOffCanvas, setShowOffCanvas] = useState(false);
 
-  const onAdd = () => {
-    // TODO: Reset form state before.
-    setShowOffCanvas(true);
-  };
+  useEffect(() => {
+    if (fetcher.data?.data?.uid) setShowOffCanvas(false);
+  }, [fetcher]);
 
   return (
     <>
@@ -45,7 +79,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
             type="button"
             variant="primary"
             className="w-auto"
-            onClick={onAdd}
+            onClick={() => setShowOffCanvas(true)}
           >
             Ajouter
           </Button>
@@ -70,7 +104,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
                   <td>{client.email}</td>
                   <td>{client.phone}</td>
                   <td>{String(client.address)}</td>
-                  <td>{String(client.createdAt.toLocaleString())}</td>
+                  <td>{String(client.createdAt?.toLocaleString())}</td>
                 </tr>
               ))}
             </tbody>
@@ -90,7 +124,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
           <Offcanvas.Title>Ajouter un client</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          <Form as={RForm} method="post">
+          <Form as={fetcher.Form} method="post">
             <Form.Group className="mb-3" controlId="fullname">
               <Form.Label>Nom complet</Form.Label>
               <Form.Control
@@ -165,8 +199,11 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
               />
             </Form.Group>
 
-            <Button variant="primary" type="submit">
-              Enregistrer
+            <Button variant="primary" type="submit" disabled={isLoading}>
+              <span>Enregistrer</span>
+              {isLoading && (
+                <Spinner className="ms-1" animation="border" size="sm" />
+              )}
             </Button>
           </Form>
         </Offcanvas.Body>
