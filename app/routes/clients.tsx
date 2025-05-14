@@ -1,4 +1,10 @@
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  orderBy,
+  query,
+} from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -14,7 +20,8 @@ import type { Route } from "./+types/clients";
 
 export const clientLoader = async () => {
   const clientsRef = collection(db, "clients").withConverter(clientConverter);
-  const querySnapshot = await getDocs(clientsRef);
+  const queryRef = query(clientsRef, orderBy("createdAt", "desc"));
+  const querySnapshot = await getDocs(queryRef);
   const clients = querySnapshot.docs.map((doc) => doc.data());
 
   return { clients };
