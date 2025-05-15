@@ -1,18 +1,18 @@
 import { Timestamp, type FirestoreDataConverter } from "firebase/firestore";
 
+export interface Address {
+  country: string;
+  city: string;
+  street: string;
+  postalCode: string;
+}
+
 export interface Client {
   uid?: string;
   fullname: string;
   email: string;
   phone: string;
-  address:
-    | {
-        country: string;
-        city: string;
-        street: string;
-        postalCode: string;
-      }
-    | string;
+  address: Address | string;
   createdAt?: Date;
   updatedAt?: Date;
 }

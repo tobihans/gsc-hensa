@@ -14,7 +14,11 @@ import Row from "react-bootstrap/Row";
 import Spinner from "react-bootstrap/Spinner";
 import Table from "react-bootstrap/Table";
 import { data, useFetcher } from "react-router";
-import { clientConverter } from "~/data/models/client";
+import {
+  clientConverter,
+  type Address,
+  type Client,
+} from "~/data/models/client";
 import { db } from "~/firebase.config";
 import type { Route } from "./+types/clients";
 
@@ -66,10 +70,13 @@ export const clientAction = async ({ request }: Route.ClientActionArgs) => {
 };
 
 export default function Clients({ loaderData }: Route.ComponentProps) {
-  const clients = loaderData.clients;
+  const { clients } = loaderData;
   const fetcher = useFetcher<Awaited<ReturnType<typeof clientAction>>>();
   const isLoading = useMemo(() => fetcher.state !== "idle", [fetcher]);
   const [showOffCanvas, setShowOffCanvas] = useState(false);
+  const [currentClient, setCurrentClient] = useState<
+    (Client & { address: Address }) | null
+  >(null);
 
   useEffect(() => {
     if (fetcher.data?.data?.uid) setShowOffCanvas(false);
@@ -86,7 +93,10 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
             type="button"
             variant="primary"
             className="w-auto"
-            onClick={() => setShowOffCanvas(true)}
+            onClick={() => {
+              setShowOffCanvas(true);
+              setCurrentClient(null);
+            }}
           >
             Ajouter
           </Button>
@@ -94,7 +104,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
       </Row>
       <Row>
         <Col>
-          <Table>
+          <Table responsive>
             <thead>
               <tr>
                 <th>Nom complet</th>
@@ -106,7 +116,15 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
             </thead>
             <tbody>
               {clients.map((client) => (
-                <tr key={client.uid} style={{ cursor: "pointer" }}>
+                // biome-ignore lint/a11y/useKeyWithClickEvents: .
+                <tr
+                  key={client.uid}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    setCurrentClient(client as Client & { address: Address });
+                    setShowOffCanvas(true);
+                  }}
+                >
                   <td>{client.fullname}</td>
                   <td>{client.email}</td>
                   <td>{client.phone}</td>
@@ -123,12 +141,17 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
         show={showOffCanvas}
         onHide={() => {
           setShowOffCanvas(false);
+          setCurrentClient(null);
         }}
         placement="end"
       >
         <Offcanvas.Header closeButton>
           {/* TODO: Handle case where record is updated or can be deleted. */}
-          <Offcanvas.Title>Ajouter un client</Offcanvas.Title>
+          <Offcanvas.Title>
+            <span>
+              {currentClient ? currentClient.fullname : "Ajouter un client"}
+            </span>
+          </Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
           <Form as={fetcher.Form} method="post">
@@ -138,6 +161,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
                 type="text"
                 name="fullname"
                 placeholder="Jeanne D'Arc"
+                defaultValue={currentClient?.fullname}
                 required
               />
             </Form.Group>
@@ -148,6 +172,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
                 type="email"
                 name="email"
                 placeholder="jeannedarc@gmail.com"
+                defaultValue={currentClient?.email}
                 required
               />
             </Form.Group>
@@ -158,6 +183,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
                 name="phone"
                 type="phone"
                 placeholder="+2290190909090"
+                defaultValue={currentClient?.phone}
                 required
               />
             </Form.Group>
@@ -168,7 +194,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
                 name="postalCode"
                 type="text"
                 placeholder="BP01234"
-                defaultValue="BP0000"
+                defaultValue={currentClient?.address?.postalCode ?? "BP0000"}
                 required
               />
             </Form.Group>
@@ -179,7 +205,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
                 name="street"
                 type="text"
                 placeholder="Marché GDM"
-                defaultValue="Rue"
+                defaultValue={currentClient?.address?.street ?? "Rue"}
                 required
               />
             </Form.Group>
@@ -190,7 +216,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
                 name="city"
                 type="text"
                 placeholder="Calavi"
-                defaultValue="Calavi"
+                defaultValue={currentClient?.address?.street ?? "Calavi"}
                 required
               />
             </Form.Group>
@@ -201,17 +227,25 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
                 name="country"
                 type="text"
                 placeholder="BJ"
-                defaultValue="BJ"
+                defaultValue={currentClient?.address?.street ?? "BJ"}
                 required
               />
             </Form.Group>
 
-            <Button variant="primary" type="submit" disabled={isLoading}>
-              <span>Enregistrer</span>
-              {isLoading && (
-                <Spinner className="ms-1" animation="border" size="sm" />
-              )}
-            </Button>
+            <div className="d-flex gap-3">
+              <Button variant="primary" type="submit" disabled={isLoading}>
+                <span>Enregistrer</span>
+                {isLoading && (
+                  <Spinner className="ms-1" animation="border" size="sm" />
+                )}
+              </Button>
+              <Button variant="outline-danger" type="button">
+                <span>Supprimer</span>
+                {isLoading && (
+                  <Spinner className="ms-1" animation="border" size="sm" />
+                )}
+              </Button>
+            </div>
           </Form>
         </Offcanvas.Body>
       </Offcanvas>
