@@ -16,7 +16,7 @@ import Offcanvas from "react-bootstrap/Offcanvas";
 import Row from "react-bootstrap/Row";
 import Spinner from "react-bootstrap/Spinner";
 import Table from "react-bootstrap/Table";
-import { type SubmitTarget, data, useFetcher, useSubmit } from "react-router";
+import { type SubmitTarget, data, useFetcher } from "react-router";
 import {
   type Address,
   type Client,
