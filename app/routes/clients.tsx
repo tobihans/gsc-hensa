@@ -1,11 +1,13 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   getDocs,
   orderBy,
   query,
 } from "firebase/firestore";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
@@ -13,11 +15,11 @@ import Offcanvas from "react-bootstrap/Offcanvas";
 import Row from "react-bootstrap/Row";
 import Spinner from "react-bootstrap/Spinner";
 import Table from "react-bootstrap/Table";
-import { data, useFetcher } from "react-router";
+import { data, useFetcher, useSubmit, type SubmitTarget } from "react-router";
 import {
-  clientConverter,
   type Address,
   type Client,
+  clientConverter,
 } from "~/data/models/client";
 import { db } from "~/firebase.config";
 import type { Route } from "./+types/clients";
@@ -33,9 +35,17 @@ export const clientLoader = async () => {
 
 // TODO: Implement Create/Update/Delete with client action.
 export const clientAction = async ({ request }: Route.ClientActionArgs) => {
-  await new Promise((resolve) => setTimeout(resolve, 10000));
-
+  // await new Promise((resolve) => setTimeout(resolve, 10000));
   const formData = await request.formData();
+
+  if (request.method === "DELETE") {
+    const uid = formData.get("uid");
+    if (uid) {
+      await deleteDoc(doc(db, "clients", uid as string));
+    }
+    return data({}, { status: 204 });
+  }
+
   // console.log(formData.get("fullname"), formData.get("email"));
   // TODO: Add data validation layer with a lib like Zod...
   const fullname = formData.get("fullname") as string;
@@ -71,12 +81,22 @@ export const clientAction = async ({ request }: Route.ClientActionArgs) => {
 
 export default function Clients({ loaderData }: Route.ComponentProps) {
   const { clients } = loaderData;
+  const form = useRef<HTMLFormElement | null>(null);
   const fetcher = useFetcher<Awaited<ReturnType<typeof clientAction>>>();
+  const submit = useSubmit();
   const isLoading = useMemo(() => fetcher.state !== "idle", [fetcher]);
   const [showOffCanvas, setShowOffCanvas] = useState(false);
   const [currentClient, setCurrentClient] = useState<
     (Client & { address: Address }) | null
   >(null);
+
+  const onUpdateOrDelete = async () => {};
+  const onDelete = async () => {
+    if (currentClient)
+      await fetcher.submit({ uid: currentClient.uid } as SubmitTarget, {
+        method: "DELETE",
+      });
+  };
 
   useEffect(() => {
     if (fetcher.data?.data?.uid) setShowOffCanvas(false);
@@ -154,7 +174,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
           </Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          <Form as={fetcher.Form} method="post">
+          <Form ref={form}>
             <Form.Group className="mb-3" controlId="fullname">
               <Form.Label>Nom complet</Form.Label>
               <Form.Control
@@ -232,18 +252,17 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
               />
             </Form.Group>
 
-            <div className="d-flex gap-3">
+            <div className="d-flex gap-3 align-items-center justify-content-start">
+              {isLoading && <Spinner animation="border" size="sm" />}
               <Button variant="primary" type="submit" disabled={isLoading}>
                 <span>Enregistrer</span>
-                {isLoading && (
-                  <Spinner className="ms-1" animation="border" size="sm" />
-                )}
               </Button>
-              <Button variant="outline-danger" type="button">
+              <Button
+                variant="outline-danger"
+                type="button"
+                onClick={() => onDelete()}
+              >
                 <span>Supprimer</span>
-                {isLoading && (
-                  <Spinner className="ms-1" animation="border" size="sm" />
-                )}
               </Button>
             </div>
           </Form>
