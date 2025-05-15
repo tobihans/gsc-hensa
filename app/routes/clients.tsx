@@ -257,13 +257,15 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
               <Button variant="primary" type="submit" disabled={isLoading}>
                 <span>Enregistrer</span>
               </Button>
-              <Button
-                variant="outline-danger"
-                type="button"
-                onClick={() => onDelete()}
-              >
-                <span>Supprimer</span>
-              </Button>
+              {currentClient && (
+                <Button
+                  variant="outline-danger"
+                  type="button"
+                  onClick={() => onDelete()}
+                >
+                  <span>Supprimer</span>
+                </Button>
+              )}
             </div>
           </Form>
         </Offcanvas.Body>
