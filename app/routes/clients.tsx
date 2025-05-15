@@ -46,34 +46,40 @@ export const clientAction = async ({ request }: Route.ClientActionArgs) => {
     return data({}, { status: 204 });
   }
 
-  // console.log(formData.get("fullname"), formData.get("email"));
-  // TODO: Add data validation layer with a lib like Zod...
-  const fullname = formData.get("fullname") as string;
-  const email = formData.get("email") as string;
-  const phone = formData.get("phone") as string;
-  const postalCode = formData.get("postalCode") as string;
-  const street = formData.get("street") as string;
-  const city = formData.get("city") as string;
-  const country = formData.get("country") as string;
+  // TODO: Add data validation layer
+  const clientDoc = {
+    fullname: formData.get("fullname") as string,
+    email: formData.get("email") as string,
+    phone: formData.get("phone") as string,
+    address: {
+      postalCode: formData.get("postalCode") as string,
+      street: formData.get("street") as string,
+      city: formData.get("city") as string,
+      country: formData.get("country") as string,
+    },
+  };
 
-  const clientsRef = collection(db, "clients").withConverter(clientConverter);
   try {
-    const docRef = await addDoc(clientsRef, {
-      fullname,
-      email,
-      phone,
-      address: {
-        postalCode,
-        street,
-        city,
-        country,
-      },
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-    return data({ uid: docRef.id, error: null }, { status: 201 });
+    if (request.method === "POST") {
+      const clientsRef = collection(db, "clients").withConverter(
+        clientConverter,
+      );
+      const docRef = await addDoc(clientsRef, {
+        ...clientDoc,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      return data({ uid: docRef.id, error: null }, { status: 201 });
+    }
+
+    // PUT method
+    const uid = formData.get("uid");
+    if (!uid)
+      return data({ uid: null, error: "Missing document id" }, { status: 400 });
+
+    return data({ uid: null, error: null }, { status: 204 });
   } catch (e) {
-    console.error("Error adding document: ", e);
+    console.error("Error adding/updating document: ", e);
     // TODO: Handle errors and provide approrpiate responses.
     return data({ uid: null, error: String(e) }, { status: 400 });
   }
@@ -83,7 +89,6 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
   const { clients } = loaderData;
   const form = useRef<HTMLFormElement | null>(null);
   const fetcher = useFetcher<Awaited<ReturnType<typeof clientAction>>>();
-  const submit = useSubmit();
   const isLoading = useMemo(() => fetcher.state !== "idle", [fetcher]);
   const [showOffCanvas, setShowOffCanvas] = useState(false);
   const [currentClient, setCurrentClient] = useState<
@@ -99,7 +104,8 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
   };
 
   useEffect(() => {
-    if (fetcher.data?.data?.uid) setShowOffCanvas(false);
+    const status = fetcher.data?.init?.status;
+    if (status && status >= 200 && status <= 299) setShowOffCanvas(false);
   }, [fetcher]);
 
   return (
@@ -175,6 +181,10 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
         </Offcanvas.Header>
         <Offcanvas.Body>
           <Form ref={form}>
+            {currentClient && (
+              <input type="hidden" name="uid" value={currentClient.uid} />
+            )}
+
             <Form.Group className="mb-3" controlId="fullname">
               <Form.Label>Nom complet</Form.Label>
               <Form.Control
