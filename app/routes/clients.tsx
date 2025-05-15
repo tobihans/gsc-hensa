@@ -6,6 +6,7 @@ import {
   getDocs,
   orderBy,
   query,
+  setDoc,
 } from "firebase/firestore";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
@@ -77,6 +78,11 @@ export const clientAction = async ({ request }: Route.ClientActionArgs) => {
     if (!uid)
       return data({ uid: null, error: "Missing document id" }, { status: 400 });
 
+    await setDoc(
+      doc(db, "clients", uid as string),
+      { ...clientDoc, updatedAt: new Date() },
+      { merge: true },
+    );
     return data({ uid: null, error: null }, { status: 204 });
   } catch (e) {
     console.error("Error adding/updating document: ", e);
@@ -95,7 +101,12 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
     (Client & { address: Address }) | null
   >(null);
 
-  const onUpdateOrDelete = async () => {};
+  const onCreateOrUpdate = async () => {
+    if (form.current)
+      await fetcher.submit(form.current as HTMLFormElement, {
+        method: currentClient ? "PUT" : "POST",
+      });
+  };
   const onDelete = async () => {
     if (currentClient)
       await fetcher.submit({ uid: currentClient.uid } as SubmitTarget, {
@@ -264,7 +275,12 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
 
             <div className="d-flex gap-3 align-items-center justify-content-start">
               {isLoading && <Spinner animation="border" size="sm" />}
-              <Button variant="primary" type="submit" disabled={isLoading}>
+              <Button
+                variant="primary"
+                type="button"
+                disabled={isLoading}
+                onClick={() => onCreateOrUpdate()}
+              >
                 <span>Enregistrer</span>
               </Button>
               {currentClient && (
