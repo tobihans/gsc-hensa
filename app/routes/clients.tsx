@@ -83,7 +83,7 @@ export const clientAction = async ({ request }: Route.ClientActionArgs) => {
       { ...clientDoc, updatedAt: new Date() },
       { merge: true },
     );
-    return data({ uid: null, error: null }, { status: 204 });
+    return data({}, { status: 204 });
   } catch (e) {
     console.error("Error adding/updating document: ", e);
     // TODO: Handle errors and provide approrpiate responses.
