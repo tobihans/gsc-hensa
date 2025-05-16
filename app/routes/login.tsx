@@ -12,7 +12,8 @@ import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import { redirect, useNavigate } from "react-router";
 import { isAuthenticated } from "~/utilities/auth";
-import { auth } from "../firebase.config";
+import { auth, analytics } from "../firebase.config";
+import { logEvent } from "firebase/analytics";
 
 export const clientLoader = async () => {
   if (await isAuthenticated()) {
@@ -34,6 +35,9 @@ export default function Login() {
       // NOTE: This is an example of how to set how long you want the user to stay connected.
       // await setPersistence(auth, inMemoryPersistence);
       await signInWithEmailAndPassword(auth, email, password);
+      logEvent(analytics, "login", {
+        method: "email",
+      });
       navigate("/");
       // biome-ignore lint/suspicious/noExplicitAny: only any/unknown allowed
     } catch (err: any) {

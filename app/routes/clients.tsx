@@ -22,8 +22,9 @@ import {
   type Client,
   clientConverter,
 } from "~/data/models/client";
-import { db } from "~/firebase.config";
+import { analytics, db } from "~/firebase.config";
 import type { Route } from "./+types/clients";
+import { logEvent } from "firebase/analytics";
 
 export const clientLoader = async () => {
   const clientsRef = collection(db, "clients").withConverter(clientConverter);
@@ -43,6 +44,9 @@ export const clientAction = async ({ request }: Route.ClientActionArgs) => {
     const uid = formData.get("uid");
     if (uid) {
       await deleteDoc(doc(db, "clients", uid as string));
+      logEvent(analytics, "clients:deleted", {
+        uid,
+      });
     }
     return data({}, { status: 204 });
   }
@@ -70,6 +74,9 @@ export const clientAction = async ({ request }: Route.ClientActionArgs) => {
         createdAt: new Date(),
         updatedAt: new Date(),
       });
+      logEvent(analytics, "clients:added", {
+        uid: docRef.id,
+      });
       return data({ uid: docRef.id, error: null }, { status: 201 });
     }
 
@@ -83,6 +90,9 @@ export const clientAction = async ({ request }: Route.ClientActionArgs) => {
       { ...clientDoc, updatedAt: new Date() },
       { merge: true },
     );
+    logEvent(analytics, "clients:updated", {
+      uid,
+    });
     return data({}, { status: 204 });
   } catch (e) {
     console.error("Error adding/updating document: ", e);
