@@ -16,6 +16,7 @@ import Offcanvas from "react-bootstrap/Offcanvas";
 import Row from "react-bootstrap/Row";
 import Spinner from "react-bootstrap/Spinner";
 import Table from "react-bootstrap/Table";
+import Modal from "react-bootstrap/Modal";
 import { type SubmitTarget, data, useFetcher } from "react-router";
 import {
   type Address,
@@ -110,6 +111,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
   const [currentClient, setCurrentClient] = useState<
     (Client & { address: Address }) | null
   >(null);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const onCreateOrUpdate = async () => {
     if (form.current)
@@ -118,10 +120,12 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
       });
   };
   const onDelete = async () => {
-    if (currentClient)
+    if (currentClient) {
       await fetcher.submit({ uid: currentClient.uid } as SubmitTarget, {
         method: "DELETE",
       });
+    }
+    setShowConfirm(false);
   };
 
   useEffect(() => {
@@ -297,7 +301,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
                 <Button
                   variant="outline-danger"
                   type="button"
-                  onClick={() => onDelete()}
+                  onClick={() => setShowConfirm(true)}
                 >
                   <span>Supprimer</span>
                 </Button>
@@ -306,6 +310,28 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
           </Form>
         </Offcanvas.Body>
       </Offcanvas>
+      {/* Boîte de confirmation pour la suppression */}
+      <Modal
+        show={showConfirm}
+        onHide={() => setShowConfirm(false)}
+        centered
+        backdrop="static"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmation de suppression</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Êtes-vous sûr de vouloir supprimer ce client&nbsp;?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowConfirm(false)}>
+            Annuler
+          </Button>
+          <Button variant="danger" onClick={onDelete}>
+            Supprimer
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }
