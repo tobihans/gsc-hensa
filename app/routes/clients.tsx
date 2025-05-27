@@ -16,6 +16,9 @@ import Offcanvas from "react-bootstrap/Offcanvas";
 import Row from "react-bootstrap/Row";
 import Spinner from "react-bootstrap/Spinner";
 import Table from "react-bootstrap/Table";
+import Modal from "react-bootstrap/Modal";
+import InputGroup from "react-bootstrap/InputGroup";
+import Pagination from "react-bootstrap/Pagination";
 import { type SubmitTarget, data, useFetcher } from "react-router";
 import {
   type Address,
@@ -26,13 +29,39 @@ import { analytics, db } from "~/firebase.config";
 import type { Route } from "./+types/clients";
 import { logEvent } from "firebase/analytics";
 
-export const clientLoader = async () => {
+export const clientLoader = async ({ request }: Route.LoaderArgs) => {
+  // Récupère les paramètres de recherche depuis l'URL
+  const url = new URL(request.url);
+  const searchEmail = url.searchParams.get("email")?.trim() || "";
+  const page = parseInt(url.searchParams.get("page") || "1", 10);
+  const pageSize = 20;
+
   const clientsRef = collection(db, "clients").withConverter(clientConverter);
   const queryRef = query(clientsRef, orderBy("createdAt", "desc"));
   const querySnapshot = await getDocs(queryRef);
-  const clients = querySnapshot.docs.map((doc) => doc.data());
+  let clients = querySnapshot.docs.map((doc) => doc.data());
 
-  return { clients };
+  // Filtrage par email exact si un email est fourni
+  if (searchEmail) {
+    clients = clients.filter((client) => client.email === searchEmail);
+  }
+
+  // Pagination
+  const totalClients = clients.length;
+  const totalPages = Math.ceil(totalClients / pageSize) || 1;
+  const currentPage = Math.min(Math.max(page, 1), totalPages);
+  const paginatedClients = clients.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
+  return { 
+    clients: paginatedClients, 
+    searchEmail, 
+    totalClients, 
+    totalPages, 
+    currentPage 
+  };
 };
 
 // TODO: Implement Create/Update/Delete with client action.
@@ -102,7 +131,7 @@ export const clientAction = async ({ request }: Route.ClientActionArgs) => {
 };
 
 export default function Clients({ loaderData }: Route.ComponentProps) {
-  const { clients } = loaderData;
+  const { clients, searchEmail, totalClients, totalPages, currentPage } = loaderData;
   const form = useRef<HTMLFormElement | null>(null);
   const fetcher = useFetcher<Awaited<ReturnType<typeof clientAction>>>();
   const isLoading = useMemo(() => fetcher.state !== "idle", [fetcher]);
@@ -110,6 +139,27 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
   const [currentClient, setCurrentClient] = useState<
     (Client & { address: Address }) | null
   >(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  // État pour la barre de recherche
+  const [emailSearch, setEmailSearch] = useState(searchEmail ?? "");
+
+  // Gestion de la soumission du formulaire de recherche
+  // https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (emailSearch) params.set("email", emailSearch);
+    window.location.search = params.toString();
+  };
+
+  // Gestion de la pagination
+  const goToPage = (page: number) => {
+    const params = new URLSearchParams(window.location.search);
+    if (emailSearch) params.set("email", emailSearch);
+    params.set("page", page.toString());
+    window.location.search = params.toString();
+  };
 
   const onCreateOrUpdate = async () => {
     if (form.current)
@@ -118,10 +168,12 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
       });
   };
   const onDelete = async () => {
-    if (currentClient)
+    if (currentClient) {
       await fetcher.submit({ uid: currentClient.uid } as SubmitTarget, {
         method: "DELETE",
       });
+    }
+    setShowConfirm(false);
   };
 
   useEffect(() => {
@@ -131,6 +183,22 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
+      {/* Barre de recherche par email */}
+      <Form className="mb-4" onSubmit={handleSearch}>
+        <InputGroup>
+          <Form.Control
+            type="email"
+            placeholder="Rechercher par email exact"
+            value={emailSearch}
+            onChange={(e) => setEmailSearch(e.target.value)}
+            name="email"
+            autoComplete="off"
+          />
+          <Button type="submit" variant="outline-primary">
+            Rechercher
+          </Button>
+        </InputGroup>
+      </Form>
       <Row className="w-100 d-flex justify-content-between mb-5">
         <Col xs={6} md={11}>
           <h2>Liste des clients</h2>
@@ -183,6 +251,40 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
           </Table>
         </Col>
       </Row>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Row className="mb-4">
+          <Col>
+            <Pagination className="justify-content-center">
+              <Pagination.First
+                disabled={currentPage === 1}
+                onClick={() => goToPage(1)}
+              />
+              <Pagination.Prev
+                disabled={currentPage === 1}
+                onClick={() => goToPage(currentPage - 1)}
+              />
+              {Array.from({ length: totalPages }, (_, i) => (
+                <Pagination.Item
+                  key={i + 1}
+                  active={i + 1 === currentPage}
+                  onClick={() => goToPage(i + 1)}
+                >
+                  {i + 1}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next
+                disabled={currentPage === totalPages}
+                onClick={() => goToPage(currentPage + 1)}
+              />
+              <Pagination.Last
+                disabled={currentPage === totalPages}
+                onClick={() => goToPage(totalPages)}
+              />
+            </Pagination>
+          </Col>
+        </Row>
+      )}
       {/* Form */}
       <Offcanvas
         show={showOffCanvas}
@@ -297,7 +399,7 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
                 <Button
                   variant="outline-danger"
                   type="button"
-                  onClick={() => onDelete()}
+                  onClick={() => setShowConfirm(true)}
                 >
                   <span>Supprimer</span>
                 </Button>
@@ -306,6 +408,28 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
           </Form>
         </Offcanvas.Body>
       </Offcanvas>
+      {/* Boîte de confirmation pour la suppression */}
+      <Modal
+        show={showConfirm}
+        onHide={() => setShowConfirm(false)}
+        centered
+        backdrop="static"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmation de suppression</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Êtes-vous sûr de vouloir supprimer ce client&nbsp;?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowConfirm(false)}>
+            Annuler
+          </Button>
+          <Button variant="danger" onClick={onDelete}>
+            Supprimer
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }
