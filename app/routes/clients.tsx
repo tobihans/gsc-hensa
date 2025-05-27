@@ -18,6 +18,7 @@ import Spinner from "react-bootstrap/Spinner";
 import Table from "react-bootstrap/Table";
 import Modal from "react-bootstrap/Modal";
 import InputGroup from "react-bootstrap/InputGroup";
+import Pagination from "react-bootstrap/Pagination";
 import { type SubmitTarget, data, useFetcher } from "react-router";
 import {
   type Address,
@@ -32,6 +33,8 @@ export const clientLoader = async ({ request }: Route.LoaderArgs) => {
   // Récupère les paramètres de recherche depuis l'URL
   const url = new URL(request.url);
   const searchEmail = url.searchParams.get("email")?.trim() || "";
+  const page = parseInt(url.searchParams.get("page") || "1", 10);
+  const pageSize = 20;
 
   const clientsRef = collection(db, "clients").withConverter(clientConverter);
   const queryRef = query(clientsRef, orderBy("createdAt", "desc"));
@@ -43,7 +46,22 @@ export const clientLoader = async ({ request }: Route.LoaderArgs) => {
     clients = clients.filter((client) => client.email === searchEmail);
   }
 
-  return { clients, searchEmail };
+  // Pagination
+  const totalClients = clients.length;
+  const totalPages = Math.ceil(totalClients / pageSize) || 1;
+  const currentPage = Math.min(Math.max(page, 1), totalPages);
+  const paginatedClients = clients.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
+  return { 
+    clients: paginatedClients, 
+    searchEmail, 
+    totalClients, 
+    totalPages, 
+    currentPage 
+  };
 };
 
 // TODO: Implement Create/Update/Delete with client action.
@@ -113,7 +131,7 @@ export const clientAction = async ({ request }: Route.ClientActionArgs) => {
 };
 
 export default function Clients({ loaderData }: Route.ComponentProps) {
-  const { clients, searchEmail } = loaderData;
+  const { clients, searchEmail, totalClients, totalPages, currentPage } = loaderData;
   const form = useRef<HTMLFormElement | null>(null);
   const fetcher = useFetcher<Awaited<ReturnType<typeof clientAction>>>();
   const isLoading = useMemo(() => fetcher.state !== "idle", [fetcher]);
@@ -132,6 +150,14 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
     e.preventDefault();
     const params = new URLSearchParams();
     if (emailSearch) params.set("email", emailSearch);
+    window.location.search = params.toString();
+  };
+
+  // Gestion de la pagination
+  const goToPage = (page: number) => {
+    const params = new URLSearchParams(window.location.search);
+    if (emailSearch) params.set("email", emailSearch);
+    params.set("page", page.toString());
     window.location.search = params.toString();
   };
 
@@ -225,6 +251,40 @@ export default function Clients({ loaderData }: Route.ComponentProps) {
           </Table>
         </Col>
       </Row>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Row className="mb-4">
+          <Col>
+            <Pagination className="justify-content-center">
+              <Pagination.First
+                disabled={currentPage === 1}
+                onClick={() => goToPage(1)}
+              />
+              <Pagination.Prev
+                disabled={currentPage === 1}
+                onClick={() => goToPage(currentPage - 1)}
+              />
+              {Array.from({ length: totalPages }, (_, i) => (
+                <Pagination.Item
+                  key={i + 1}
+                  active={i + 1 === currentPage}
+                  onClick={() => goToPage(i + 1)}
+                >
+                  {i + 1}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next
+                disabled={currentPage === totalPages}
+                onClick={() => goToPage(currentPage + 1)}
+              />
+              <Pagination.Last
+                disabled={currentPage === totalPages}
+                onClick={() => goToPage(totalPages)}
+              />
+            </Pagination>
+          </Col>
+        </Row>
+      )}
       {/* Form */}
       <Offcanvas
         show={showOffCanvas}
