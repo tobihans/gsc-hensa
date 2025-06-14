@@ -27,11 +27,11 @@ export default function App() {
   }, [navigate]);
 
   return (
-    <AuthProvider>
-      <AppNavbar />
-      <Container fluid="xl">
-        <Outlet />
-      </Container>
-    </AuthProvider>
+      <AuthProvider>
+        <AppNavbar />
+        <Container fluid="xl">
+          <Outlet />
+        </Container>
+      </AuthProvider>
   );
 }
