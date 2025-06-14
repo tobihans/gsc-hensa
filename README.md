@@ -1,87 +1,39 @@
-# Welcome to React Router!
+# Gestion des Clients – Projet React + Firebase
+#Nouveau Test
+Ce projet est une application web de gestion de clients, développée avec **React** et **Firebase**.  
+Après avoir forké le projet d'origine, plusieurs améliorations et nouvelles fonctionnalités ont été apportées :
 
-A modern, production-ready template for building full-stack React applications using React Router.
+## Fonctionnalités principales
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+- **Authentification sécurisée** des utilisateurs via Firebase Auth.
+- **Affichage de la liste des clients** avec tri alphabétique par nom.
+- **Barre de recherche** permettant de filtrer les clients par numéro de téléphone (recherche exacte).
+- **Pagination dynamique** : possibilité d’afficher 10, 50 ou 100 clients par page, avec navigation entre les pages.
+- **Ajout, modification et suppression** de clients via un formulaire interactif.
+- **Affichage détaillé de l’adresse** de chaque client.
+- **Interface responsive** et moderne grâce à React Bootstrap.
 
-## Features
+Toutes les opérations de filtrage, tri et pagination sont effectuées côté serveur via Firestore, garantissant performance et cohérence des données.
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+## Prise en main
 
-## Getting Started
+1. **Fork du projet** sur GitHub.
+2. **Configuration de Firebase** via le fichier `.env` (voir la documentation du projet pour les variables nécessaires).
+3. **Installation des dépendances** (`npm install`).
+4. **Lancement du projet** en local (`npm run dev`).
 
-### Installation
+## Démo
 
-Install the dependencies:
+Voici quelques illustrations du fonctionnement de la pagination et de la recherche dans l’application :
 
-```bash
-npm install
-```
+### Captures d’écran
 
-### Development
+| Page 1 | Page 2 |
+|--------|--------|
+| ![Pagination page 1](./Demo/demo_pagination1.png) | ![Pagination page 2](./Demo/demo_pagination2.png) |
 
-Start the development server with HMR:
+### Vidéo de démonstration
 
-```bash
-npm run dev
-```
+[▶️ Voir la vidéo de démonstration](./Demo/demo_video.mp4)
 
-Your application will be available at `http://localhost:5173`.
-
-## Building for Production
-
-Create a production build:
-
-```bash
-npm run build
-```
-
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+[![Miniature vidéo](./Demo/demo_pagination1.png)](./Demo/demo_video.mp4)
